@@ -30,7 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
             bunkers: [],
             trees: [
                 { x: 400, y: 200, radius: 20 },
-                { x: 400, y: 400, radius: 20 }
+                { x: 400, y: 400, radius: 20 },
+                { x: 375, y: 300, radius: 25 } // Center Blocker
             ]
         },
         // Hole 2: Par 4 - Dogleg Right
@@ -69,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
             bunkers: [
                 { x: 550, y: 220, rx: 30, ry: 20, rotation: 0 }, // Top
                 { x: 550, y: 380, rx: 30, ry: 20, rotation: 0 }, // Bottom
-                { x: 630, y: 300, rx: 20, ry: 30, rotation: 0 }  // Back
+                { x: 630, y: 300, rx: 20, ry: 30, rotation: 0 }, // Back
+                { x: 300, y: 300, rx: 30, ry: 30, rotation: 0 }  // PATH BLOCKER
             ],
             trees: []
         },
@@ -80,7 +82,11 @@ document.addEventListener('DOMContentLoaded', () => {
             hole: { x: 750, y: 300 },
             fairwayType: 'narrow',
             bunkers: [{ x: 400, y: 300, rx: 20, ry: 50, rotation: 0 }], // Center blocker
-            trees: [{ x: 400, y: 150, radius: 25 }, { x: 400, y: 450, radius: 25 }]
+            trees: [
+                { x: 400, y: 150, radius: 25 },
+                { x: 400, y: 450, radius: 25 },
+                { x: 400, y: 300, radius: 25 } // True Center Block
+            ]
         },
         // Hole 7: Par 5 - Long Diagonal
         {
@@ -111,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hole: { x: 400, y: 50 },
             fairwayType: 'vertical-straight',
             bunkers: [{ x: 350, y: 300, rx: 20, ry: 40, rotation: 0 }, { x: 450, y: 300, rx: 20, ry: 40, rotation: 0 }], // Gate
-            trees: []
+            trees: [{ x: 400, y: 300, radius: 20 }] // Center Block
         }
     ];
 
@@ -125,6 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameOver = false;
     let fairwayPath = new Path2D();
     let greenPath = new Path2D();
+
+    // Global stats for session
+    let cumulativeScore = 0;
+    let cumulativePar = 0;
 
     function loadLevel(levelIndex) {
         // Safe index check
@@ -183,6 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
         config.totalHoles = parseInt(numHolesInput.value);
         config.totalPlayers = parseInt(numPlayersInput.value);
         splashScreen.classList.add('hidden');
+
+        // Reset totals
+        cumulativeScore = 0;
+        cumulativePar = 0;
 
         loadLevel(1); // Start at Hole 1
     });
@@ -672,20 +686,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Next Hole Handler
     nextHoleBtn.addEventListener('click', () => {
+        // Accumulate stats for the hole just finished
+        cumulativeScore += strokes;
+        cumulativePar += par;
+
         config.currentHole++;
 
         if (config.currentHole > config.totalHoles) {
             // End Game
-            messageArea.textContent = `COURSE COMPLETE! Final Score: Unknown (Add Score Tracking Next)`;
-            messageArea.style.color = '#fff';
+            const gameOverScreen = document.getElementById('game-over-screen');
+            const finalHoles = document.getElementById('final-holes-played');
+            const finalScore = document.getElementById('final-score');
+            const finalPar = document.getElementById('final-par');
+
+            if (finalHoles) finalHoles.textContent = config.totalHoles;
+            if (finalScore) finalScore.textContent = cumulativeScore;
+            if (finalPar) finalPar.textContent = cumulativePar;
+
+            gameOverScreen.classList.remove('hidden');
             nextHoleBtn.classList.add('hidden');
-            // Or loop back:
-            config.currentHole = 1;
-            loadLevel(1);
         } else {
             loadLevel(config.currentHole);
         }
     });
+
+    // Play Again Handler
+    const playAgainBtn = document.getElementById('play-again-btn');
+    if (playAgainBtn) {
+        playAgainBtn.addEventListener('click', () => {
+            document.getElementById('game-over-screen').classList.add('hidden');
+            splashScreen.classList.remove('hidden');
+            config.currentHole = 1;
+        });
+    }
 
     shootBtn.addEventListener('click', shoot);
 
