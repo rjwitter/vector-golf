@@ -12,17 +12,54 @@
 </head>
 
 <body>
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1>Vector <span class="highlight">Golf</span></h1>
+            <p>This version of golf will help you learn about vectors. Vectors are a combination of angle and magnitude.
+                For each stroke, you will specify the angle (where 0 degrees in north) and magnitude (a power reference
+                is displayed to show how far the ball will go).</p>
+            <p class="warning">Avoid the trees and sand traps — if you hit them, your ball will stop immediately.</p>
+
+            <div class="config-group">
+                <div class="config-item">
+                    <label for="num-holes">Number of Holes</label>
+                    <select id="num-holes">
+                        <option value="1">1 Hole</option>
+                        <option value="3">3 Holes</option>
+                        <option value="9">9 Holes</option>
+                    </select>
+                </div>
+                <div class="config-item">
+                    <label for="num-players">Number of Players</label>
+                    <select id="num-players">
+                        <option value="1">1 Player</option>
+                        <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
+                        <option value="4">4 Players</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="start-btn">Start Game</button>
+        </div>
+    </div>
     <div class="game-container">
         <header>
-            <h1>Vector <span class="highlight">Golf</span></h1>
+            <div class="header-left">
+                <h1>Vector <span class="highlight">Golf</span></h1>
+            </div>
             <div class="stats">
                 <div class="stat-box">
                     <span class="label">Hole</span>
-                    <span class="value" id="hole-number">1</span>
+                    <span id="hole-number" class="value">1</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">Par</span>
+                    <span id="par-display" class="value">3</span>
                 </div>
                 <div class="stat-box">
                     <span class="label">Strokes</span>
-                    <span class="value" id="strokes">0</span>
+                    <span id="strokes" class="value">0</span>
                 </div>
             </div>
         </header>
@@ -44,6 +81,7 @@
         </section>
 
         <div id="message-area"></div>
+        <button id="next-hole-btn" class="hidden">Next Hole</button>
     </div>
     <script src="script.js"></script>
 </body>

@@ -1,0 +1,50 @@
+/* Scorecard */
+.scorecard-container {
+    overflow-x: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+#scorecard {
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    color: var(--text-color);
+}
+
+#scorecard th,
+#scorecard td {
+    padding: 4px 8px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#scorecard th {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent-color);
+}
+
+#scorecard .current-hole {
+    background: rgba(233, 69, 96, 0.2);
+    border-color: var(--accent-color);
+}
+
+.total-col {
+    font-weight: bold;
+    color: var(--green-color);
+}
+
+/* Header Adjustments */
+header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}

@@ -142,7 +142,8 @@ button {
     font-size: 1rem;
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s ease;
-    height: 48px; /* Match input height roughly */
+    height: 48px;
+    /* Match input height roughly */
 }
 
 button:hover {
@@ -159,4 +160,109 @@ button:active {
     font-weight: 600;
     min-height: 1.5rem;
     color: var(--green-color);
+}
+
+.hidden {
+    display: none !important;
+}
+
+#next-hole-btn {
+    align-self: center;
+    background: var(--green-color);
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    padding: 1rem 3rem;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Splash Screen */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 52, 96, 0.95);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease;
+}
+
+#splash-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.splash-content {
+    background: var(--card-bg);
+    padding: 3rem;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.splash-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.splash-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: #cbd5e1;
+}
+
+.splash-content .warning {
+    color: #e67e22;
+    font-weight: 500;
+}
+
+.config-group {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+.config-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.config-item select {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-family: var(--ui-font);
+    font-size: 1rem;
+    cursor: pointer;
+    min-width: 140px;
+}
+
+.splash-content button {
+    font-size: 1.2rem;
+    padding: 1rem 3rem;
+    margin-top: 1rem;
 }
