@@ -29,6 +29,22 @@
     border-color: var(--accent-color);
 }
 
+.score-over {
+    color: #555 !important;
+    font-weight: bold;
+}
+
+.score-under {
+    color: #3498db !important;
+    font-weight: bold;
+}
+
+.score-even {
+    color: #000 !important;
+    /* Black as requested */
+    font-weight: bold;
+}
+
 .total-col {
     font-weight: bold;
     color: var(--green-color);

@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const splashScreen = document.getElementById('splash-screen');
     const startBtn = document.getElementById('start-btn');
     const numHolesInput = document.getElementById('num-holes');
+    const startHoleInput = document.getElementById('start-hole');
+    const startHoleConfig = document.getElementById('start-hole-config');
     const numPlayersInput = document.getElementById('num-players');
     const nextHoleBtn = document.getElementById('next-hole-btn');
 
@@ -16,8 +18,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let config = {
         totalHoles: 1,
         totalPlayers: 1,
-        currentHole: 1
+        currentHole: 1,
+        holesPlayedCount: 0
     };
+
+    // Toggle starting hole visibility (only for single hole mode)
+    numHolesInput.addEventListener('change', () => {
+        if (numHolesInput.value === '1') {
+            startHoleConfig.classList.remove('hidden');
+        } else {
+            startHoleConfig.classList.add('hidden');
+        }
+    });
 
     // LEVEL DATA
     const LEVELS = [
@@ -58,8 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tee: { x: 50, y: 500 },
             hole: { x: 750, y: 100 },
             fairwayType: 's-curve',
-            bunkers: [{ x: 300, y: 300, rx: 30, ry: 30, rotation: 0 }, { x: 500, y: 300, rx: 30, ry: 30, rotation: 0 }],
-            trees: [{ x: 200, y: 400, radius: 20 }, { x: 600, y: 200, radius: 20 }]
+            bunkers: [{ x: 350, y: 300, rx: 30, ry: 30, rotation: 0 }],
+            trees: [{ x: 200, y: 500, radius: 20 }, { x: 600, y: 100, radius: 20 }]
         },
         // Hole 5: Par 3 - Island Green (simulated with bunkers)
         {
@@ -135,6 +147,50 @@ document.addEventListener('DOMContentLoaded', () => {
     // Global stats for session
     let cumulativeScore = 0;
     let cumulativePar = 0;
+    let sessionHoles = []; // List of hole numbers in current round
+    let holeScores = [];   // Strokes per hole
+    let holePars = [];     // Par per hole
+
+    function renderScorecard(containerId = 'scorecard-container') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        let totalScoreS = 0;
+        let totalParS = 0;
+        sessionHoles.forEach((h, i) => {
+            totalParS += (holePars[i] || 0);
+            totalScoreS += (holeScores[i] || 0);
+        });
+
+        let html = '<table id="scorecard"><thead><tr><th>Hole</th>';
+        sessionHoles.forEach((h, i) => {
+            const isCurrent = (config.holes_played_count === i); // Wait, I used holesPlayedCount
+            const isCurrentH = (config.holesPlayedCount === i);
+            html += `<th class="${isCurrentH ? 'current-hole' : ''}">${h}</th>`;
+        });
+        html += '<th class="total-col">Total</th></tr></thead><tbody><tr><td>Par</td>';
+        sessionHoles.forEach((h, i) => {
+            html += `<td>${holePars[i] || '-'}</td>`;
+        });
+        html += `<td class="total-col">${totalParS}</td></tr><tr><td>Score</td>`;
+        sessionHoles.forEach((h, i) => {
+            const score = holeScores[i];
+            const p = holePars[i];
+            let className = '';
+            if (score !== null) {
+                if (score > p) className = 'score-over';
+                else if (score < p) className = 'score-under';
+                else className = 'score-even';
+            }
+            html += `<td class="${className}">${score !== null ? score : '-'}</td>`;
+        });
+        html += `<td class="total-col">${totalScoreS}</td></tr></tbody></table>`;
+        container.innerHTML = html;
+
+        // Also update cumulative vars for game over screen
+        cumulativeScore = totalScoreS;
+        cumulativePar = totalParS;
+    }
 
     function loadLevel(levelIndex) {
         // Safe index check
@@ -179,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide Button just in case
         nextHoleBtn.classList.add('hidden');
 
+        renderScorecard();
         draw();
 
         // Reset Inputs
@@ -192,13 +249,35 @@ document.addEventListener('DOMContentLoaded', () => {
     startBtn.addEventListener('click', () => {
         config.totalHoles = parseInt(numHolesInput.value);
         config.totalPlayers = parseInt(numPlayersInput.value);
+
+        // Pick starting hole (only for 1 hole mode)
+        if (config.totalHoles === 1) {
+            config.currentHole = parseInt(startHoleInput.value);
+        } else {
+            config.currentHole = 1;
+        }
+
+        config.holesPlayedCount = 0;
         splashScreen.classList.add('hidden');
 
         // Reset totals
         cumulativeScore = 0;
         cumulativePar = 0;
+        sessionHoles = [];
+        holeScores = [];
+        holePars = [];
 
-        loadLevel(1); // Start at Hole 1
+        // Pre-build session hole list/pars
+        let tempHole = config.currentHole;
+        for (let i = 0; i < config.totalHoles; i++) {
+            sessionHoles.push(tempHole);
+            holePars.push(LEVELS[(tempHole - 1) % LEVELS.length].par);
+            holeScores.push(null);
+            tempHole = (tempHole % 9) + 1;
+        }
+
+        renderScorecard();
+        loadLevel(config.currentHole);
     });
 
     // Define Fairway Geometry (Dynamic)
@@ -206,74 +285,106 @@ document.addEventListener('DOMContentLoaded', () => {
         const p = new Path2D();
 
         if (type === 'straight') {
-            p.moveTo(0, 250);
-            p.lineTo(800, 250);
-            p.lineTo(800, 350);
-            p.lineTo(0, 350);
+            // Rounded organic rectangle
+            p.moveTo(0, 260);
+            p.quadraticCurveTo(0, 250, 10, 250);
+            p.quadraticCurveTo(400, 230, 790, 250);
+            p.quadraticCurveTo(800, 250, 800, 260);
+            p.lineTo(800, 340);
+            p.quadraticCurveTo(800, 350, 790, 350);
+            p.quadraticCurveTo(400, 370, 10, 350);
+            p.quadraticCurveTo(0, 350, 0, 340);
         } else if (type === 'dogleg-right') {
-            p.moveTo(0, 400);
-            p.lineTo(400, 400);
-            p.lineTo(400, 50);
-            p.lineTo(500, 50);
-            p.lineTo(500, 500); // Inner corner
-            p.lineTo(0, 500);
+            // Sweeping organic dogleg with rounded caps
+            p.moveTo(0, 410);
+            p.quadraticCurveTo(0, 400, 10, 400);
+            p.quadraticCurveTo(350, 400, 400, 350); // Outer bend
+            p.lineTo(400, 60);
+            p.quadraticCurveTo(400, 50, 410, 50);
+            p.lineTo(490, 50);
+            p.quadraticCurveTo(500, 50, 500, 60);
+            p.lineTo(500, 440);
+            p.quadraticCurveTo(500, 500, 440, 500); // Inner sweep
+            p.lineTo(10, 500);
+            p.quadraticCurveTo(0, 500, 0, 490);
         } else if (type === 'dogleg-left') {
-            p.moveTo(800, 400);
-            p.lineTo(400, 400);
-            p.lineTo(400, 50);
-            p.lineTo(300, 50);
-            p.lineTo(300, 500); // Inner corner
-            p.lineTo(800, 500);
+            // Organic sweep left with rounded caps
+            p.moveTo(800, 410);
+            p.quadraticCurveTo(800, 400, 790, 400);
+            p.quadraticCurveTo(450, 400, 400, 350); // Outer bend
+            p.lineTo(400, 60);
+            p.quadraticCurveTo(400, 50, 390, 50);
+            p.lineTo(310, 50);
+            p.quadraticCurveTo(300, 50, 300, 60);
+            p.lineTo(300, 440);
+            p.quadraticCurveTo(300, 500, 360, 500); // Inner sweep
+            p.lineTo(790, 500);
+            p.quadraticCurveTo(800, 500, 800, 490);
         } else if (type === 's-curve') {
-            p.moveTo(0, 450);
-            p.bezierCurveTo(300, 450, 300, 150, 600, 150);
-            p.lineTo(800, 150);
-            p.lineTo(800, 50); // End cap
-            p.lineTo(800, 250); // Thickness? No, simple path
-            // Let's do a blocky s-curve for robustness or a nice bezier
-            // Re-doing simple path for S-Curve
-            const w = 100; // width
-            p.moveTo(0, 450);
-            p.lineTo(300, 450);
-            p.lineTo(300, 150);
-            p.lineTo(800, 150);
-            p.lineTo(800, 50);
-            p.lineTo(200, 50);
-            p.lineTo(200, 350);
-            p.lineTo(0, 350);
+            // Truly organic S-Curve with rounded caps
+            p.moveTo(0, 540);
+            p.quadraticCurveTo(0, 550, 10, 550);
+            p.bezierCurveTo(350, 550, 350, 150, 790, 150);
+            p.quadraticCurveTo(800, 150, 800, 140);
+            p.lineTo(800, 60);
+            p.quadraticCurveTo(800, 50, 790, 50);
+            p.bezierCurveTo(250, 50, 250, 450, 10, 450);
+            p.quadraticCurveTo(0, 450, 0, 460);
         } else if (type === 'straight-short') {
-            p.moveTo(0, 250);
-            p.lineTo(600, 250);
-            p.lineTo(600, 350);
-            p.lineTo(0, 350);
+            p.moveTo(0, 260);
+            p.quadraticCurveTo(0, 250, 10, 250);
+            p.quadraticCurveTo(300, 230, 590, 250);
+            p.quadraticCurveTo(600, 250, 600, 260);
+            p.lineTo(600, 340);
+            p.quadraticCurveTo(600, 350, 590, 350);
+            p.quadraticCurveTo(300, 370, 10, 350);
+            p.quadraticCurveTo(0, 350, 0, 340);
         } else if (type === 'narrow') {
-            p.moveTo(0, 275);
-            p.lineTo(800, 275);
-            p.lineTo(800, 325);
-            p.lineTo(0, 325);
+            p.moveTo(0, 290);
+            p.quadraticCurveTo(0, 280, 10, 280);
+            p.quadraticCurveTo(400, 270, 790, 280);
+            p.quadraticCurveTo(800, 280, 800, 290);
+            p.lineTo(800, 310);
+            p.quadraticCurveTo(800, 320, 790, 320);
+            p.quadraticCurveTo(400, 330, 10, 320);
+            p.quadraticCurveTo(0, 320, 0, 310);
         } else if (type === 'diagonal') {
-            p.moveTo(0, 600);
-            p.lineTo(100, 600);
-            p.lineTo(800, 100);
-            p.lineTo(700, 0); // Approx
-            p.lineTo(0, 500);
+            p.moveTo(0, 590);
+            p.quadraticCurveTo(0, 600, 10, 600);
+            p.quadraticCurveTo(400, 350, 790, 106.25);
+            p.quadraticCurveTo(800, 100, 790, 93.75); // Rounded far end
+            p.lineTo(710, 6.25);
+            p.quadraticCurveTo(700, 0, 690, 6.25);
+            p.quadraticCurveTo(350, 250, 10, 500);
+            p.quadraticCurveTo(0, 500, 0, 510);
         } else if (type === 'standard-curved') {
-            p.moveTo(0, 150);
-            p.quadraticCurveTo(400, 400, 800, 350);
-            p.lineTo(800, 450);
-            p.quadraticCurveTo(400, 500, 0, 250);
+            p.moveTo(0, 160);
+            p.quadraticCurveTo(0, 150, 10, 150);
+            p.quadraticCurveTo(400, 400, 790, 350);
+            p.quadraticCurveTo(800, 350, 800, 360);
+            p.lineTo(800, 440);
+            p.quadraticCurveTo(800, 450, 790, 450);
+            p.quadraticCurveTo(400, 500, 10, 250);
+            p.quadraticCurveTo(0, 250, 0, 260);
         } else if (type === 'vertical-straight') {
-            p.moveTo(350, 600);
-            p.lineTo(350, 0);
-            p.lineTo(450, 0);
-            p.lineTo(450, 600);
+            p.moveTo(360, 600);
+            p.quadraticCurveTo(350, 600, 350, 590);
+            p.quadraticCurveTo(330, 300, 350, 10);
+            p.quadraticCurveTo(350, 0, 360, 0);
+            p.lineTo(440, 0);
+            p.quadraticCurveTo(450, 0, 450, 10);
+            p.quadraticCurveTo(470, 300, 450, 590);
+            p.quadraticCurveTo(450, 600, 440, 600);
         } else {
-            // Default Fallback
-            p.moveTo(0, 250);
-            p.bezierCurveTo(200, 50, 400, 450, 600, 250);
-            p.lineTo(800, 250);
-            p.lineTo(800, 450);
-            p.bezierCurveTo(500, 650, 300, 150, 0, 450);
+            // Default organic rounded
+            p.moveTo(0, 260);
+            p.quadraticCurveTo(0, 250, 10, 250);
+            p.bezierCurveTo(200, 50, 400, 450, 590, 250);
+            p.quadraticCurveTo(600, 250, 600, 260);
+            p.lineTo(600, 440);
+            p.quadraticCurveTo(600, 450, 590, 450);
+            p.bezierCurveTo(500, 650, 300, 150, 10, 450);
+            p.quadraticCurveTo(0, 450, 0, 460);
         }
 
         p.closePath();
@@ -292,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Config
     const MAX_POWER = 100;
-    const POWER_FACTOR = 2; // 1 Power = 2 Pixels. Max Distance = 200px (Matches Power Bar Width).
+    const POWER_FACTOR = 3; // 1 Power = 3 Pixels. Max Distance = 300px.
 
     // Helper: Draw UI Elements
     function drawTree(ctx, x, y, radius) {
@@ -372,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         // 3. Power Bar (Bottom Center) - STATIC REFERENCE
-        const barW = 200;
+        const barW = 300;
         const barH = 10;
         const barX = (canvas.width - barW) / 2;
         const barY = canvas.height - 30;
@@ -602,6 +713,10 @@ document.addEventListener('DOMContentLoaded', () => {
             strokesDisplay.textContent = strokes;
         }
 
+        // Update scorecard live
+        holeScores[config.holesPlayedCount] = strokes;
+        renderScorecard();
+
         // 1. Check Win (if no hazard hit)
         if (!msg) {
             const distToHole = Math.sqrt((ball.x - hole.x) ** 2 + (ball.y - hole.y) ** 2);
@@ -654,11 +769,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (strokesDisplay) {
             strokesDisplay.textContent = strokes;
         }
+
+        // Update scorecard live
+        holeScores[config.holesPlayedCount] = strokes;
+        renderScorecard();
+
         messageArea.textContent = 'HOLE COMPLETE! (Total Strokes: ' + strokes + ')';
         messageArea.style.color = '#2ecc71';
 
         if (nextHoleBtn) {
             nextHoleBtn.classList.remove('hidden');
+            nextHoleBtn.focus();
         }
 
         draw();
@@ -686,26 +807,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Next Hole Handler
     nextHoleBtn.addEventListener('click', () => {
-        // Accumulate stats for the hole just finished
-        cumulativeScore += strokes;
-        cumulativePar += par;
+        config.holesPlayedCount++;
 
-        config.currentHole++;
-
-        if (config.currentHole > config.totalHoles) {
+        if (config.holesPlayedCount >= config.totalHoles) {
             // End Game
+            renderScorecard('final-scorecard-container');
+
             const gameOverScreen = document.getElementById('game-over-screen');
-            const finalHoles = document.getElementById('final-holes-played');
-            const finalScore = document.getElementById('final-score');
-            const finalPar = document.getElementById('final-par');
-
-            if (finalHoles) finalHoles.textContent = config.totalHoles;
-            if (finalScore) finalScore.textContent = cumulativeScore;
-            if (finalPar) finalPar.textContent = cumulativePar;
-
             gameOverScreen.classList.remove('hidden');
             nextHoleBtn.classList.add('hidden');
         } else {
+            // Go to next hole (cycling through 9)
+            config.currentHole = (config.currentHole % 9) + 1;
             loadLevel(config.currentHole);
         }
     });

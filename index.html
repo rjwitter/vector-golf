@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="scorecard_styles.css">
 </head>
 
 <body>
@@ -27,6 +28,20 @@
                         <option value="1">1 Hole</option>
                         <option value="3">3 Holes</option>
                         <option value="9">9 Holes</option>
+                    </select>
+                </div>
+                <div id="start-hole-config" class="config-item">
+                    <label for="start-hole">Starting Hole</label>
+                    <select id="start-hole">
+                        <option value="1">Hole 1</option>
+                        <option value="2">Hole 2</option>
+                        <option value="3">Hole 3</option>
+                        <option value="4">Hole 4</option>
+                        <option value="5">Hole 5</option>
+                        <option value="6">Hole 6</option>
+                        <option value="7">Hole 7</option>
+                        <option value="8">Hole 8</option>
+                        <option value="9">Hole 9</option>
                     </select>
                 </div>
                 <div class="config-item">
@@ -49,20 +64,7 @@
         <div class="splash-content">
             <h1>Course <span class="highlight">Complete!</span></h1>
 
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="label">Holes Played</span>
-                    <span id="final-holes-played" class="value big">9</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">Total Score</span>
-                    <span id="final-score" class="value big">32</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">Total Par</span>
-                    <span id="final-par" class="value big">30</span>
-                </div>
-            </div>
+            <div id="final-scorecard-container"></div>
 
             <button id="play-again-btn">Play Again</button>
         </div>
@@ -72,6 +74,7 @@
             <div class="header-left">
                 <h1>Vector <span class="highlight">Golf</span></h1>
             </div>
+            <div id="scorecard-container" class="scorecard-container"></div>
             <div class="stats">
                 <div class="stat-box">
                     <span class="label">Hole</span>
