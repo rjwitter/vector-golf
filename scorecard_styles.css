@@ -29,8 +29,12 @@
     border-color: var(--accent-color);
 }
 
+.par-row {
+    color: #fff !important;
+}
+
 .score-over {
-    color: #555 !important;
+    color: #e94560 !important;
     font-weight: bold;
 }
 

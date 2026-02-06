@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isCurrentH = (config.holesPlayedCount === i);
             html += `<th class="${isCurrentH ? 'current-hole' : ''}">${h}</th>`;
         });
-        html += '<th class="total-col">Total</th></tr></thead><tbody><tr><td>Par</td>';
+        html += '<th class="total-col">Total</th></tr></thead><tbody><tr class="par-row"><td>Par</td>';
         sessionHoles.forEach((h, i) => {
             html += `<td>${holePars[i] || '-'}</td>`;
         });
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reset Inputs
         angleInput.value = 0;
-        distanceInput.value = 50;
+        distanceInput.value = 100;
         angleInput.focus();
         angleInput.select();
     }
@@ -789,6 +789,11 @@ document.addEventListener('DOMContentLoaded', () => {
     distanceInput.addEventListener('change', () => {
         if (distanceInput.value > MAX_POWER) distanceInput.value = MAX_POWER;
         if (distanceInput.value < 1) distanceInput.value = 1;
+        draw();
+    });
+    angleInput.addEventListener('change', () => {
+        if (angleInput.value > 360) angleInput.value = 360;
+        if (angleInput.value < 0) angleInput.value = 0;
         draw();
     });
     distanceInput.addEventListener('input', draw);

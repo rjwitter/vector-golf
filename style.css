@@ -95,8 +95,9 @@ canvas {
 
 .controls {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     align-items: flex-end;
+    justify-content: center;
     background: rgba(255, 255, 255, 0.03);
     padding: 1rem;
     border-radius: 12px;
@@ -106,7 +107,6 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    flex: 1;
 }
 
 label {
@@ -117,12 +117,13 @@ label {
 input {
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.8rem;
+    padding: 0.5rem 0.8rem;
     border-radius: 8px;
     color: white;
     font-family: var(--ui-font);
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: all 0.2s ease;
+    width: 100px;
 }
 
 input:focus {
@@ -135,14 +136,14 @@ button {
     background: var(--accent-color);
     color: white;
     border: none;
-    padding: 0.8rem 2rem;
+    padding: 0.5rem 1.5rem;
     border-radius: 8px;
     font-family: var(--ui-font);
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s ease;
-    height: 48px;
+    height: 38px;
     /* Match input height roughly */
 }
 
