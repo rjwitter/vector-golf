@@ -143,7 +143,7 @@ button {
     font-size: 0.9rem;
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s ease;
-    height: 38px;
+    min-height: 38px;
     /* Match input height roughly */
 }
 
