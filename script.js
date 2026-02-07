@@ -619,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isMoving = false;
     let velocity = { x: 0, y: 0 };
     let remainingSteps = 0;
-    let stepSize = 2; // Speed of ball (pixels per frame approx)
+    let stepSize = 4; // Speed of ball (pixels per frame approx)
     let animationId = null;
     let startingInHazard = false;
     let hitHazard = false;
@@ -682,16 +682,32 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. WIN CONDITION: Check for Dunk
         const distToHole = Math.sqrt((ball.x - hole.x) ** 2 + (ball.y - hole.y) ** 2);
         if (distToHole < hole.radius) {
-            handleWin();
-            return;
+            // Speed Check: Only sink if power is low (<= 10 units)
+            const remainingPower = (remainingSteps * stepSize) / POWER_FACTOR;
+            if (remainingPower <= 10) {
+                handleWin();
+                return;
+            } else {
+                // Too fast to sink - show feedback message
+                if (messageArea) {
+                    messageArea.textContent = "Too much power, ball skipped out of the hole!";
+                    messageArea.style.color = "#e67e22"; // Orange
+                }
+                stopBall(); // End the shot immediately after skip
+            }
         }
 
         // 2. Collision Check
         const collision = isColliding(ball.x, ball.y);
-        if (collision && !startingInHazard) {
-            hitHazard = true;
-            stopBall(`HIT A ${collision.type.toUpperCase()}! Ball stopped.`, '#e74c3c');
-            return;
+        if (collision) {
+            if (!startingInHazard) {
+                hitHazard = true;
+                stopBall(`HIT A ${collision.type.toUpperCase()}! Ball stopped.`, '#e74c3c');
+                return;
+            }
+        } else {
+            // Ball is in clear space, reset hazard flag so it can hit the NEXT obstacle
+            startingInHazard = false;
         }
 
         // 3. Stop Condition: Out of steam

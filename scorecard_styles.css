@@ -44,8 +44,7 @@
 }
 
 .score-even {
-    color: #000 !important;
-    /* Black as requested */
+    color: white !important;
     font-weight: bold;
 }
 
