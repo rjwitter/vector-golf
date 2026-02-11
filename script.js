@@ -851,6 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('game-over-screen').classList.add('hidden');
             splashScreen.classList.remove('hidden');
             config.currentHole = 1;
+            numHolesInput.focus();
         });
     }
 
