@@ -33,16 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // LEVEL DATA
     const LEVELS = [
-        // Hole 1: Par 3 - Simple Straight
+        // Hole 1: Par 3 - Simple Diagonal (Fairway-Aligned)
         {
             par: 3,
-            tee: { x: 50, y: 300 },
-            hole: { x: 700, y: 300 },
+            tee: { x: 50, y: 280 },
+            hole: { x: 750, y: 320 },
             fairwayType: 'straight',
             bunkers: [],
             trees: [
-                { x: 400, y: 200, radius: 20 },
-                { x: 400, y: 400, radius: 20 },
+                { x: 300, y: 270, radius: 20 },
+                { x: 500, y: 330, radius: 20 },
                 { x: 375, y: 300, radius: 25 } // Center Blocker
             ]
         },
@@ -73,31 +73,31 @@ document.addEventListener('DOMContentLoaded', () => {
             bunkers: [{ x: 350, y: 300, rx: 30, ry: 30, rotation: 0 }],
             trees: [{ x: 200, y: 500, radius: 20 }, { x: 600, y: 100, radius: 20 }]
         },
-        // Hole 5: Par 3 - Island Green (simulated with bunkers)
+        // Hole 5: Par 3 - Island Green (Diagonal & Fairway-Aligned)
         {
             par: 3,
-            tee: { x: 50, y: 300 },
-            hole: { x: 550, y: 300 },
+            tee: { x: 50, y: 280 },
+            hole: { x: 550, y: 320 },
             fairwayType: 'straight-short',
             bunkers: [
-                { x: 550, y: 220, rx: 30, ry: 20, rotation: 0 }, // Top
-                { x: 550, y: 380, rx: 30, ry: 20, rotation: 0 }, // Bottom
-                { x: 630, y: 300, rx: 20, ry: 30, rotation: 0 }, // Back
-                { x: 300, y: 300, rx: 30, ry: 30, rotation: 0 }  // PATH BLOCKER
+                { x: 550, y: 240, rx: 30, ry: 20, rotation: 0 }, // Top
+                { x: 550, y: 400, rx: 30, ry: 20, rotation: 0 }, // Bottom
+                { x: 630, y: 320, rx: 20, ry: 30, rotation: 0 }, // Back
+                { x: 325, y: 300, rx: 30, ry: 30, rotation: 0 }  // PATH BLOCKER
             ],
             trees: []
         },
-        // Hole 6: Par 4 - Narrow
+        // Hole 6: Par 4 - Narrow Diagonal (Fairway-Aligned)
         {
             par: 4,
-            tee: { x: 50, y: 300 },
-            hole: { x: 750, y: 300 },
+            tee: { x: 50, y: 290 },
+            hole: { x: 750, y: 310 },
             fairwayType: 'narrow',
             bunkers: [{ x: 400, y: 300, rx: 20, ry: 50, rotation: 0 }], // Center blocker
             trees: [
-                { x: 400, y: 150, radius: 25 },
-                { x: 400, y: 450, radius: 25 },
-                { x: 400, y: 300, radius: 25 } // True Center Block
+                { x: 400, y: 285, radius: 10 },
+                { x: 400, y: 315, radius: 10 },
+                { x: 400, y: 300, radius: 15 } // True Center Block
             ]
         },
         // Hole 7: Par 5 - Long Diagonal
@@ -122,11 +122,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 { x: 250, y: 350, radius: 20 } // Clump
             ]
         },
-        // Hole 9: Par 4 - Precision End
+        // Hole 9: Par 4 - Vertical Diagonal (Fairway-Aligned)
         {
             par: 4,
-            tee: { x: 400, y: 550 },
-            hole: { x: 400, y: 50 },
+            tee: { x: 380, y: 550 },
+            hole: { x: 420, y: 50 },
             fairwayType: 'vertical-straight',
             bunkers: [{ x: 350, y: 300, rx: 20, ry: 40, rotation: 0 }, { x: 450, y: 300, rx: 20, ry: 40, rotation: 0 }], // Gate
             trees: [{ x: 400, y: 300, radius: 20 }] // Center Block
