@@ -26,12 +26,12 @@ body {
 
 .game-container {
     background-color: var(--card-bg);
-    padding: 2rem;
+    padding: 1rem;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0.5rem;
     max-width: 900px;
     width: 100%;
 }
@@ -40,11 +40,12 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 0.5rem;
 }
 
 h1 {
     font-weight: 700;
-    font-size: 2rem;
+    font-size: 1.5rem;
     letter-spacing: -0.02em;
 }
 
@@ -54,12 +55,12 @@ h1 {
 
 .stats {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .stat-box {
     background: rgba(255, 255, 255, 0.05);
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -67,13 +68,13 @@ h1 {
 }
 
 .stat-box .label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
     opacity: 0.7;
 }
 
 .stat-box .value {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--accent-color);
 }
@@ -99,25 +100,25 @@ canvas {
     align-items: flex-end;
     justify-content: center;
     background: rgba(255, 255, 255, 0.03);
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 12px;
 }
 
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
 }
 
 label {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 
 input {
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 0.8rem;
+    padding: 0.4rem 0.6rem;
     border-radius: 8px;
     color: white;
     font-family: var(--ui-font);
@@ -136,14 +137,14 @@ button {
     background: var(--accent-color);
     color: white;
     border: none;
-    padding: 0.5rem 1.5rem;
+    padding: 0.4rem 1.2rem;
     border-radius: 8px;
     font-family: var(--ui-font);
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.2s ease;
-    min-height: 38px;
+    min-height: 36px;
     /* Match input height roughly */
 }
 
@@ -159,8 +160,9 @@ button:active {
 #message-area {
     text-align: center;
     font-weight: 600;
-    min-height: 1.5rem;
+    min-height: 1.2rem;
     color: var(--green-color);
+    font-size: 0.9rem;
 }
 
 .hidden {
@@ -170,9 +172,9 @@ button:active {
 #next-hole-btn {
     align-self: center;
     background: var(--green-color);
-    margin-top: 1rem;
-    font-size: 1.2rem;
-    padding: 1rem 3rem;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    padding: 0.5rem 2rem;
     animation: fadeIn 0.5s ease;
 }
 
