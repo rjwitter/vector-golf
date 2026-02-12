@@ -17,13 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Game Config (Legacy removed, using new config structure defined below)
     // ...
 
-    // Toggle starting hole visibility (only for single hole mode)
+    // Toggle starting hole visibility (Always visible now per user request)
+    // numHolesInput.addEventListener('change', () => { ... }); 
+    // Kept comment for reference, code removed to keep it always visible as it is by default in HTML
+    startHoleConfig.classList.remove('hidden'); // Ensure it's visible incase it was hidden
+
     numHolesInput.addEventListener('change', () => {
-        if (numHolesInput.value === '1') {
-            startHoleConfig.classList.remove('hidden');
-        } else {
-            startHoleConfig.classList.add('hidden');
-        }
+        startHoleConfig.classList.remove('hidden');
     });
 
     // LEVEL DATA
@@ -308,12 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
         initPlayers(config.totalPlayers);
         config.totalPlayers = parseInt(numPlayersInput.value);
 
-        // Pick starting hole (only for 1 hole mode)
-        if (config.totalHoles === 1) {
-            config.currentHole = parseInt(startHoleInput.value);
-        } else {
-            config.currentHole = 1;
-        }
+        // Pick starting hole (Always use input)
+        config.currentHole = parseInt(startHoleInput.value);
 
         config.holesPlayedCount = 0;
         splashScreen.classList.add('hidden');
