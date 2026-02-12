@@ -82,17 +82,21 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             trees: []
         },
-        // Hole 6: Par 4 - Narrow Diagonal (Fairway-Aligned)
+        // Hole 6: Par 5 - The Arch (Opposite Sides)
         {
-            par: 4,
-            tee: { x: 50, y: 290 },
-            hole: { x: 750, y: 310 },
-            fairwayType: 'narrow',
-            bunkers: [{ x: 400, y: 300, rx: 20, ry: 50, rotation: 0 }], // Center blocker
+            par: 5,
+            tee: { x: 60, y: 500 },
+            hole: { x: 740, y: 500 },
+            fairwayType: 'arch',
+            bunkers: [
+                { x: 400, y: 100, rx: 60, ry: 20, rotation: 0 }, // Top Guard
+                { x: 200, y: 300, rx: 30, ry: 30, rotation: 0 }, // Left Void Guard
+                { x: 600, y: 300, rx: 30, ry: 30, rotation: 0 }  // Right Void Guard
+            ],
             trees: [
-                { x: 400, y: 285, radius: 10 },
-                { x: 400, y: 315, radius: 10 },
-                { x: 400, y: 300, radius: 15 } // True Center Block
+                { x: 400, y: 500, radius: 40 }, // Center Void Blocker (Big Tree)
+                { x: 350, y: 450, radius: 30 },
+                { x: 450, y: 450, radius: 30 }
             ]
         },
         // Hole 7: Par 5 - Long Diagonal
@@ -402,6 +406,19 @@ document.addEventListener('DOMContentLoaded', () => {
             p.quadraticCurveTo(800, 320, 790, 320);
             p.quadraticCurveTo(400, 330, 10, 320);
             p.quadraticCurveTo(0, 320, 0, 310);
+        } else if (type === 'arch') {
+            // Arch / Rainbow Shape
+            // Outer Curve
+            p.moveTo(0, 500); // Bottom Left Start
+            p.quadraticCurveTo(0, 50, 400, 50); // Control Point Top Left -> Peak
+            p.quadraticCurveTo(800, 50, 800, 500); // Control Point Top Right -> Bottom Right End
+            p.lineTo(700, 500); // Move in for inner curve start
+
+            // Inner Curve
+            p.quadraticCurveTo(700, 200, 400, 200); // Inner Right -> Inner Peak
+            p.quadraticCurveTo(100, 200, 100, 500); // Inner Left -> Bottom Left Inner
+            p.lineTo(0, 500); // Close loop
+            p.closePath();
         } else if (type === 'diagonal') {
             p.moveTo(0, 590);
             p.quadraticCurveTo(0, 600, 10, 600);
