@@ -941,24 +941,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endGame() {
         const gameOverScreen = document.getElementById('game-over-screen');
-        const finalScoreDisplay = document.getElementById('final-score');
-        const finalParDisplay = document.getElementById('final-par');
-
         gameOverScreen.classList.remove('hidden');
 
         // Render the full scorecard
         renderScorecard('final-scorecard-container');
-        // Build Multi-Player Score Summary
-        let html = '<h3>Final Scores</h3><ul>';
-        config.players.sort((a, b) => a.cumulativeScore - b.cumulativeScore).forEach(p => {
-            // Recalculate cumulative just to be safe
-            const totalScore = p.holeScores.reduce((a, b) => a + (b || 0), 0);
-            html += `<li style="color:${p.color}"><b>${p.name}</b>: ${totalScore}</li>`;
-        });
-        html += '</ul>';
-
-        finalScoreDisplay.style.display = 'none';
-        finalParDisplay.parentElement.innerHTML = html;
 
         gameOver = true;
     }
