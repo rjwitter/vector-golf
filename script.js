@@ -340,108 +340,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (type === 'straight') {
             // Rounded organic rectangle
-            p.moveTo(0, 260);
-            p.quadraticCurveTo(0, 250, 10, 250);
-            p.quadraticCurveTo(400, 230, 790, 250);
-            p.quadraticCurveTo(800, 250, 800, 260);
-            p.lineTo(800, 340);
-            p.quadraticCurveTo(800, 350, 790, 350);
-            p.quadraticCurveTo(400, 370, 10, 350);
-            p.quadraticCurveTo(0, 350, 0, 340);
+            p.moveTo(0, 240); // 260 -> 240
+            p.quadraticCurveTo(0, 220, 10, 220); // 250 -> 220
+            p.quadraticCurveTo(400, 210, 790, 240); // 230 -> 210
+            p.quadraticCurveTo(800, 240, 800, 260); // 250 -> 240
+            p.lineTo(800, 360); // 340 -> 360
+            p.quadraticCurveTo(800, 380, 790, 380); // 350 -> 380
+            p.quadraticCurveTo(400, 400, 10, 360); // 370 -> 400
+            p.quadraticCurveTo(0, 360, 0, 340); // 350 -> 360
         } else if (type === 'dogleg-right') {
             // Sweeping organic dogleg with rounded caps
-            p.moveTo(0, 410);
-            p.quadraticCurveTo(0, 400, 10, 400);
-            p.quadraticCurveTo(350, 400, 400, 350); // Outer bend
-            p.lineTo(400, 60);
-            p.quadraticCurveTo(400, 50, 410, 50);
-            p.lineTo(490, 50);
-            p.quadraticCurveTo(500, 50, 500, 60);
-            p.lineTo(500, 440);
-            p.quadraticCurveTo(500, 500, 440, 500); // Inner sweep
-            p.lineTo(10, 500);
-            p.quadraticCurveTo(0, 500, 0, 490);
+            p.moveTo(0, 390); // 410 -> 390 (-20)
+            p.quadraticCurveTo(0, 380, 10, 380);
+            p.quadraticCurveTo(350, 380, 375, 325); // 400,350 -> 375, 325 (Widen corner)
+            p.lineTo(375, 60); // 400 -> 375
+            p.quadraticCurveTo(375, 50, 385, 50); // 400 -> 375
+            p.lineTo(515, 50); // 490 -> 515
+            p.quadraticCurveTo(525, 50, 525, 60); // 500 -> 525
+            p.lineTo(525, 440); // 500 -> 525
+            p.quadraticCurveTo(525, 520, 440, 520); // 500,500 -> 525, 520
+            p.lineTo(10, 520); // 500 -> 520
+            p.quadraticCurveTo(0, 520, 0, 510); // 500 -> 520
         } else if (type === 'dogleg-left') {
             // Organic sweep left with rounded caps
-            p.moveTo(800, 410);
-            p.quadraticCurveTo(800, 400, 790, 400);
-            p.quadraticCurveTo(450, 400, 400, 350); // Outer bend
-            p.lineTo(400, 60);
-            p.quadraticCurveTo(400, 50, 390, 50);
-            p.lineTo(310, 50);
-            p.quadraticCurveTo(300, 50, 300, 60);
-            p.lineTo(300, 440);
-            p.quadraticCurveTo(300, 500, 360, 500); // Inner sweep
-            p.lineTo(790, 500);
-            p.quadraticCurveTo(800, 500, 800, 490);
+            p.moveTo(800, 390); // 410 -> 390
+            p.quadraticCurveTo(800, 380, 790, 380);
+            p.quadraticCurveTo(450, 380, 425, 325); // 400,350 -> 425, 325
+            p.lineTo(425, 60); // 400 -> 425
+            p.quadraticCurveTo(425, 50, 415, 50);
+            p.lineTo(285, 50); // 310 -> 285
+            p.quadraticCurveTo(275, 50, 275, 60); // 300 -> 275
+            p.lineTo(275, 440); // 300 -> 275
+            p.quadraticCurveTo(275, 520, 360, 520); // 300,500 -> 275, 520
+            p.lineTo(790, 520); // 500 -> 520
+            p.quadraticCurveTo(800, 520, 800, 510);
         } else if (type === 's-curve') {
             // Truly organic S-Curve with rounded caps
-            p.moveTo(0, 540);
-            p.quadraticCurveTo(0, 550, 10, 550);
-            p.bezierCurveTo(350, 550, 350, 150, 790, 150);
-            p.quadraticCurveTo(800, 150, 800, 140);
-            p.lineTo(800, 60);
-            p.quadraticCurveTo(800, 50, 790, 50);
-            p.bezierCurveTo(250, 50, 250, 450, 10, 450);
-            p.quadraticCurveTo(0, 450, 0, 460);
+            p.moveTo(0, 515); // 540 -> 515 (Widen start)
+            p.quadraticCurveTo(0, 575, 10, 575); // 550 -> 575
+            p.bezierCurveTo(350, 575, 300, 175, 790, 175); // Widen curves
+            p.quadraticCurveTo(800, 175, 800, 165);
+            p.lineTo(800, 35); // 60 -> 35
+            p.quadraticCurveTo(800, 25, 790, 25);
+            p.bezierCurveTo(200, 25, 200, 425, 10, 425); // Widen curves
+            p.quadraticCurveTo(0, 425, 0, 435);
         } else if (type === 'straight-short') {
-            p.moveTo(0, 260);
-            p.quadraticCurveTo(0, 250, 10, 250);
-            p.quadraticCurveTo(300, 230, 590, 250);
-            p.quadraticCurveTo(600, 250, 600, 260);
-            p.lineTo(600, 340);
-            p.quadraticCurveTo(600, 350, 590, 350);
-            p.quadraticCurveTo(300, 370, 10, 350);
-            p.quadraticCurveTo(0, 350, 0, 340);
+            p.moveTo(0, 240); // 260 -> 240
+            p.quadraticCurveTo(0, 230, 10, 230);
+            p.quadraticCurveTo(300, 210, 590, 230);
+            p.quadraticCurveTo(600, 230, 600, 240);
+            p.lineTo(600, 360); // 340 -> 360
+            p.quadraticCurveTo(600, 370, 590, 370);
+            p.quadraticCurveTo(300, 390, 10, 370);
+            p.quadraticCurveTo(0, 370, 0, 360);
         } else if (type === 'narrow') {
-            p.moveTo(0, 290);
-            p.quadraticCurveTo(0, 280, 10, 280);
-            p.quadraticCurveTo(400, 270, 790, 280);
-            p.quadraticCurveTo(800, 280, 800, 290);
-            p.lineTo(800, 310);
-            p.quadraticCurveTo(800, 320, 790, 320);
-            p.quadraticCurveTo(400, 330, 10, 320);
-            p.quadraticCurveTo(0, 320, 0, 310);
+            p.moveTo(0, 305); // 290 -> 305 (Start wider gap.. wait, Narrow needs to be wider too?)
+            // Assuming "widen" means the playable area. "Narrow" hole implies challenge.
+            // Let's widen it 50% from 20px to 30px? Or make it "not narrow"?
+            // Request said "fairways 50% wider on each of the holes".
+            // Straight: 80 -> 120. Narrow: 20 -> 30.
+            p.quadraticCurveTo(0, 275, 10, 275); // 280 -> 275
+            p.quadraticCurveTo(400, 265, 790, 275);
+            p.quadraticCurveTo(800, 275, 800, 285);
+            p.lineTo(800, 315); // 310 -> 315 (Width ~40 now)
+            p.quadraticCurveTo(800, 325, 790, 325);
+            p.quadraticCurveTo(400, 335, 10, 315);
+            p.quadraticCurveTo(0, 315, 0, 305);
         } else if (type === 'arch') {
             // Arch / Rainbow Shape
             // Outer Curve
-            p.moveTo(0, 500); // Bottom Left Start
-            p.quadraticCurveTo(0, 50, 400, 50); // Control Point Top Left -> Peak
-            p.quadraticCurveTo(800, 50, 800, 500); // Control Point Top Right -> Bottom Right End
-            p.lineTo(700, 500); // Move in for inner curve start
+            p.moveTo(0, 530); // 500 -> 530
+            p.quadraticCurveTo(0, 10, 400, 10); // 50 -> 10 (Higher peak)
+            p.quadraticCurveTo(800, 10, 800, 530); // 50 -> 10
+            p.lineTo(700, 530); // Move in
 
             // Inner Curve
-            p.quadraticCurveTo(700, 200, 400, 200); // Inner Right -> Inner Peak
-            p.quadraticCurveTo(100, 200, 100, 500); // Inner Left -> Bottom Left Inner
-            p.lineTo(0, 500); // Close loop
+            p.quadraticCurveTo(700, 230, 400, 230); // 200 -> 230 (Lower inner peak/wider gap)
+            p.quadraticCurveTo(100, 230, 100, 530); // 200 -> 230
+            p.lineTo(0, 530); // Close loop
             p.closePath();
         } else if (type === 'diagonal') {
-            p.moveTo(0, 590);
+            p.moveTo(0, 600); // 590 -> 600 (Max)
             p.quadraticCurveTo(0, 600, 10, 600);
-            p.quadraticCurveTo(400, 350, 790, 106.25);
-            p.quadraticCurveTo(800, 100, 790, 93.75); // Rounded far end
-            p.lineTo(710, 6.25);
-            p.quadraticCurveTo(700, 0, 690, 6.25);
-            p.quadraticCurveTo(350, 250, 10, 500);
-            p.quadraticCurveTo(0, 500, 0, 510);
+            p.quadraticCurveTo(400, 350, 790, 120); // 106.25 -> 120
+            p.quadraticCurveTo(800, 110, 790, 100); // 100 -> 110
+            p.lineTo(690, -10); // 710, 6.25 -> Wider
+            p.quadraticCurveTo(680, -20, 670, -10);
+            p.quadraticCurveTo(350, 210, 10, 480); // 250 -> 210, 500 -> 480
+            p.quadraticCurveTo(0, 480, 0, 490);
         } else if (type === 'standard-curved') {
-            p.moveTo(0, 160);
-            p.quadraticCurveTo(0, 150, 10, 150);
-            p.quadraticCurveTo(400, 400, 790, 350);
-            p.quadraticCurveTo(800, 350, 800, 360);
-            p.lineTo(800, 440);
-            p.quadraticCurveTo(800, 450, 790, 450);
-            p.quadraticCurveTo(400, 500, 10, 250);
-            p.quadraticCurveTo(0, 250, 0, 260);
+            p.moveTo(0, 140); // 160 -> 140
+            p.quadraticCurveTo(0, 130, 10, 130);
+            p.quadraticCurveTo(400, 380, 790, 330); // 400 -> 380, 350 -> 330
+            p.quadraticCurveTo(800, 330, 800, 340);
+            p.lineTo(800, 460); // 440 -> 460
+            p.quadraticCurveTo(800, 470, 790, 470);
+            p.quadraticCurveTo(400, 520, 10, 230); // 500 -> 520, 250 -> 230
+            p.quadraticCurveTo(0, 230, 0, 240);
         } else if (type === 'vertical-straight') {
-            p.moveTo(360, 600);
-            p.quadraticCurveTo(350, 600, 350, 590);
-            p.quadraticCurveTo(330, 300, 350, 10);
-            p.quadraticCurveTo(350, 0, 360, 0);
-            p.lineTo(440, 0);
-            p.quadraticCurveTo(450, 0, 450, 10);
-            p.quadraticCurveTo(470, 300, 450, 590);
-            p.quadraticCurveTo(450, 600, 440, 600);
+            p.moveTo(340, 600); // 360 -> 340
+            p.quadraticCurveTo(330, 600, 330, 590);
+            p.quadraticCurveTo(310, 300, 330, 10); // 330 -> 310
+            p.quadraticCurveTo(330, 0, 340, 0);
+            p.lineTo(460, 0); // 440 -> 460
+            p.quadraticCurveTo(470, 0, 470, 10);
+            p.quadraticCurveTo(490, 300, 470, 590); // 470 -> 490
+            p.quadraticCurveTo(470, 600, 460, 600);
         } else {
             // Default organic rounded
             p.moveTo(0, 260);
