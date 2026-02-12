@@ -238,6 +238,22 @@ button:active {
     font-weight: 500;
 }
 
+.splash-content h3,
+.splash-content ul {
+    text-align: left;
+    margin-bottom: 0.5rem;
+}
+
+.splash-content ul {
+    margin-bottom: 2rem;
+    padding-left: 1.5rem;
+}
+
+.splash-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
 .config-group {
     display: flex;
     gap: 2rem;
