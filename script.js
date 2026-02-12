@@ -14,13 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const numPlayersInput = document.getElementById('num-players');
     const nextHoleBtn = document.getElementById('next-hole-btn');
 
-    // Game Config
-    let config = {
-        totalHoles: 1,
-        totalPlayers: 1,
-        currentHole: 1,
-        holesPlayedCount: 0
-    };
+    // Game Config (Legacy removed, using new config structure defined below)
+    // ...
 
     // Toggle starting hole visibility (only for single hole mode)
     numHolesInput.addEventListener('change', () => {
@@ -134,62 +129,101 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // Game State
-    let ball = { x: 0, y: 0, radius: 5 };
+    let config = {
+        totalHoles: 1,
+        totalPlayers: 1,
+        currentHole: 1,
+        holesPlayedCount: 0,
+        currentPlayerIndex: 0,
+        players: []
+    };
+
+    const PLAYER_COLORS = ['#ecf0f1', '#e74c3c', '#3498db', '#f1c40f'];
+
     let hole = { x: 0, y: 0, radius: 10 };
     let bunkers = [];
     let trees = [];
-    let strokes = 0;
     let par = 0;
     let gameOver = false;
     let fairwayPath = new Path2D();
     let greenPath = new Path2D();
 
-    // Global stats for session
-    let cumulativeScore = 0;
-    let cumulativePar = 0;
-    let sessionHoles = []; // List of hole numbers in current round
-    let holeScores = [];   // Strokes per hole
-    let holePars = [];     // Par per hole
+    // Global stats for session (legacy single player, now part of player obj)
+    // Kept for compatibility if needed, but primary state is in config.players
+    let sessionHoles = [];
+    // holeScores and holePars can remain global for scorecard rendering utility
+
+    function initPlayers(numPlayers) {
+        config.players = [];
+        for (let i = 0; i < numPlayers; i++) {
+            config.players.push({
+                id: i,
+                name: `P${i + 1}`,
+                color: PLAYER_COLORS[i % PLAYER_COLORS.length],
+                ball: { x: 0, y: 0, radius: 5 },
+                strokes: 0, // Strokes for CURRENT hole
+                holeScores: [], // History
+                finished: false,
+                cumulativeScore: 0
+            });
+        }
+        config.currentPlayerIndex = 0;
+    }
+
+    function getCurrentPlayer() {
+        return config.players[config.currentPlayerIndex];
+    }
 
     function renderScorecard(containerId = 'scorecard-container') {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        let totalScoreS = 0;
-        let totalParS = 0;
-        sessionHoles.forEach((h, i) => {
-            totalParS += (holePars[i] || 0);
-            totalScoreS += (holeScores[i] || 0);
-        });
-
         let html = '<table id="scorecard"><thead><tr><th>Hole</th>';
         sessionHoles.forEach((h, i) => {
-            const isCurrent = (config.holes_played_count === i); // Wait, I used holesPlayedCount
             const isCurrentH = (config.holesPlayedCount === i);
             html += `<th class="${isCurrentH ? 'current-hole' : ''}">${h}</th>`;
         });
         html += '<th class="total-col">Total</th></tr></thead><tbody><tr class="par-row"><td>Par</td>';
         sessionHoles.forEach((h, i) => {
-            html += `<td>${holePars[i] || '-'}</td>`;
+            // Check if LEVEL data exists for this hole index
+            const levelIdx = (h - 1) % LEVELS.length;
+            html += `<td>${LEVELS[levelIdx].par}</td>`;
         });
-        html += `<td class="total-col">${totalParS}</td></tr><tr><td>Score</td>`;
-        sessionHoles.forEach((h, i) => {
-            const score = holeScores[i];
-            const p = holePars[i];
-            let className = '';
-            if (score !== null) {
-                if (score > p) className = 'score-over';
-                else if (score < p) className = 'score-under';
-                else className = 'score-even';
-            }
-            html += `<td class="${className}">${score !== null ? score : '-'}</td>`;
-        });
-        html += `<td class="total-col">${totalScoreS}</td></tr></tbody></table>`;
-        container.innerHTML = html;
 
-        // Also update cumulative vars for game over screen
-        cumulativeScore = totalScoreS;
-        cumulativePar = totalParS;
+        // Calculate Total Par
+        let totalParS = 0;
+        sessionHoles.forEach(h => {
+            const levelIdx = (h - 1) % LEVELS.length;
+            totalParS += LEVELS[levelIdx].par;
+        });
+        html += `<td class="total-col">${totalParS}</td></tr>`;
+
+        // Render Row for EACH Player
+        config.players.forEach(player => {
+            html += `<tr><td style="color:${player.color}; font-weight:bold;">${player.name}</td>`;
+            let pTotal = 0;
+            sessionHoles.forEach((h, i) => {
+                const score = player.holeScores[i];
+                const levelIdx = (h - 1) % LEVELS.length;
+                const p = LEVELS[levelIdx].par;
+
+                let className = '';
+                let cellContent = '-';
+
+                if (score !== undefined && score !== null) {
+                    pTotal += score;
+                    cellContent = score;
+                    if (score > p) className = 'score-over';
+                    else if (score < p) className = 'score-under';
+                    else className = 'score-even';
+                }
+                html += `<td class="${className}">${cellContent}</td>`;
+            });
+            html += `<td class="total-col">${pTotal}</td></tr>`;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
     }
 
     function loadLevel(levelIndex) {
@@ -199,12 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 1. Set Level Data
         par = levelData.par;
-        ball.x = levelData.tee.x;
-        ball.y = levelData.tee.y;
         hole.x = levelData.hole.x;
         hole.y = levelData.hole.y;
 
-        // Deep copy obstacles to avoid mutating LEVELS
+        // Deep copy obstacles
         bunkers = JSON.parse(JSON.stringify(levelData.bunkers));
         trees = JSON.parse(JSON.stringify(levelData.trees));
 
@@ -212,27 +244,38 @@ document.addEventListener('DOMContentLoaded', () => {
         defineFairway(levelData.fairwayType);
         defineGreen();
 
-        // 3. Reset State
-        strokes = 0;
+        // 3. Reset State for ALL Players
+        config.players.forEach((p, i) => {
+            // Random offset within +/- 20px to simulate a "tee box" area
+            const offsetX = (Math.random() * 40) - 20;
+            const offsetY = (Math.random() * 40) - 20;
+
+            p.ball.x = levelData.tee.x + offsetX;
+            p.ball.y = levelData.tee.y + offsetY;
+            p.strokes = 0;
+            p.finished = false;
+        });
+
+        config.currentPlayerIndex = 0; // Always P1 starts
         gameOver = false;
         isMoving = false;
         velocity = { x: 0, y: 0 };
         remainingSteps = 0;
-        lastFairwayPos = null; // Will start on tee
+        lastFairwayPos = null;
 
         // 4. Update UI
-        if (strokesDisplay) strokesDisplay.textContent = strokes;
+        updateTopBar();
 
         const parDisplay = document.getElementById('par-display');
         if (parDisplay) parDisplay.textContent = par;
 
-        messageArea.textContent = ``; // Clear default message or keep empty
-        messageArea.style.color = '#fff';
+        messageArea.textContent = `Player ${config.players[0].name}'s Turn`;
+        messageArea.style.color = config.players[0].color;
 
         const holeNumberDisplay = document.getElementById('hole-number');
         if (holeNumberDisplay) holeNumberDisplay.textContent = levelIndex;
 
-        // Hide Button just in case
+        // Hide Button
         nextHoleBtn.classList.add('hidden');
 
         renderScorecard();
@@ -245,9 +288,20 @@ document.addEventListener('DOMContentLoaded', () => {
         angleInput.select();
     }
 
+    function updateTopBar() {
+        if (strokesDisplay) {
+            const cp = getCurrentPlayer();
+            strokesDisplay.textContent = cp ? cp.strokes : 0;
+            strokesDisplay.style.color = cp ? cp.color : '#ecf0f1';
+        }
+    }
+
     // Start Game Handler
     startBtn.addEventListener('click', () => {
         config.totalHoles = parseInt(numHolesInput.value);
+        config.totalPlayers = parseInt(numPlayersInput.value);
+
+        initPlayers(config.totalPlayers);
         config.totalPlayers = parseInt(numPlayersInput.value);
 
         // Pick starting hole (only for 1 hole mode)
@@ -542,7 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // 4. Draw Trees
-        // 4. Draw Trees
         trees.forEach(t => {
             drawTree(ctx, t.x, t.y, t.radius);
         });
@@ -569,17 +622,36 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = '#27ae60';
         ctx.fill();
 
-        // 8. Draw Ball
-        ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-        ctx.closePath();
-        ctx.shadowColor = 'transparent';
+        // 8. Draw Balls (All Players)
+        config.players.forEach((p, index) => {
+            if (p.finished) return; // Don't draw finished balls? Or maybe draw them in the hole? Let's hide them.
+
+            ctx.beginPath();
+            ctx.arc(p.ball.x, p.ball.y, p.ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+
+            // Highlight Current Player
+            if (index === config.currentPlayerIndex && !gameOver) {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Pulsing indicator?
+                ctx.beginPath();
+                ctx.arc(p.ball.x, p.ball.y, p.ball.radius + 5, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            } else {
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+            }
+            ctx.closePath();
+            ctx.shadowColor = 'transparent';
+        });
 
         // 9. Draw UI Helpers
         if (!gameOver) {
@@ -602,7 +674,9 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const t of trees) {
             const dx = x - t.x;
             const dy = y - t.y;
-            if (dx * dx + dy * dy < (t.radius + ball.radius) ** 2) {
+            // Use static radius of 5 since we might not have reference to current ball inside loop easily? 
+            // Actually we pass x,y. Let's assume standard ball radius 5.
+            if (dx * dx + dy * dy < (t.radius + 5) ** 2) {
                 return { type: 'tree' };
             }
         }
@@ -627,6 +701,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function shoot() {
         if (gameOver || isMoving) return;
+
+        const player = getCurrentPlayer();
+        const ball = player.ball; // Local reference
 
         const dateAngle = parseFloat(angleInput.value) || 0;
         let power = parseFloat(distanceInput.value) || 0;
@@ -660,14 +737,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         isMoving = true;
-        messageArea.textContent = '';
-        messageArea.style.color = '#fff';
+        messageArea.textContent = `Player ${player.name} Shooting...`;
+        messageArea.style.color = player.color;
 
         animate();
     }
 
     function animate() {
         if (!isMoving) return;
+
+        const player = getCurrentPlayer();
+        const ball = player.ball; // Local ref
 
         // Move
         ball.x += velocity.x;
@@ -685,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Speed Check: Only sink if power is low (<= 10 units)
             const remainingPower = (remainingSteps * stepSize) / POWER_FACTOR;
             if (remainingPower <= 10) {
-                handleWin();
+                stopBall(null, null, true); // true = Win
                 return;
             } else {
                 // Too fast to sink - show feedback message
@@ -724,23 +804,32 @@ document.addEventListener('DOMContentLoaded', () => {
         animationId = requestAnimationFrame(animate);
     }
 
-    function stopBall(msg = null, color = null) {
+    function stopBall(msg = null, color = null, isWin = false) {
         isMoving = false;
         cancelAnimationFrame(animationId);
 
-        strokes++;
+        const player = getCurrentPlayer();
+        const ball = player.ball;
+
+        player.strokes++;
         if (strokesDisplay) {
-            strokesDisplay.textContent = strokes;
+            strokesDisplay.textContent = player.strokes;
         }
 
         // Update scorecard live
-        holeScores[config.holesPlayedCount] = strokes;
+        player.holeScores[config.holesPlayedCount] = player.strokes;
         renderScorecard();
 
-        // 1. Check Win (if no hazard hit)
+        // 1. Check Win (if no hazard hit) OR if explicit win passed
+        if (isWin) {
+            handleWin(); // This logic needs to change for multiplayer
+            return;
+        }
+
+        // Manual distance check if not already win
         if (!msg) {
             const distToHole = Math.sqrt((ball.x - hole.x) ** 2 + (ball.y - hole.y) ** 2);
-            if (distToHole < hole.radius + 2) { // Generous stop win
+            if (distToHole < hole.radius + 2) {
                 handleWin();
                 return;
             }
@@ -760,9 +849,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const oobText = "The ball went out of bounds!";
                 if (finalMsg) {
-                    finalMsg = oobText; // Override collision message if we also went OOB (unlikely but possible)
+                    finalMsg = oobText;
                 } else {
-                    finalMsg = "The ball went out of bounds!"; // Fixed message
+                    finalMsg = "The ball went out of bounds!";
                     finalColor = '#e67e22';
                 }
             }
@@ -776,6 +865,9 @@ document.addEventListener('DOMContentLoaded', () => {
             messageArea.textContent = '';
         }
 
+        // NEXT PLAYER TURN LOGIC
+        advanceTurn();
+
         draw();
         angleInput.focus();
         angleInput.select();
@@ -784,25 +876,91 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleWin() {
         isMoving = false;
         cancelAnimationFrame(animationId);
-        gameOver = true;
-        strokes++; // Count the winning stroke? Usually yes.
-        if (strokesDisplay) {
-            strokesDisplay.textContent = strokes;
+
+        const player = getCurrentPlayer();
+        player.finished = true;
+
+        messageArea.textContent = `${player.name} Sunk it! (Strokes: ${player.strokes})`;
+        messageArea.style.color = '#2ecc71'; // Green
+
+        // Trigger confetti or sound?
+        // For now, just wait a brief moment then next turn
+        setTimeout(() => {
+            advanceTurn();
+        }, 2000);
+    }
+
+    function advanceTurn() {
+        // Check if ALL players are finished
+        const allFinished = config.players.every(p => p.finished);
+
+        if (allFinished) {
+            completeHole();
+            return;
         }
 
-        // Update scorecard live
-        holeScores[config.holesPlayedCount] = strokes;
-        renderScorecard();
-
-        messageArea.textContent = 'HOLE COMPLETE! (Total Strokes: ' + strokes + ')';
-        messageArea.style.color = '#2ecc71';
-
-        if (nextHoleBtn) {
-            nextHoleBtn.classList.remove('hidden');
-            nextHoleBtn.focus();
+        // Cycle to next unfinished player
+        let nextIndex = (config.currentPlayerIndex + 1) % config.totalPlayers;
+        let loops = 0;
+        while (config.players[nextIndex].finished && loops < config.totalPlayers) {
+            nextIndex = (nextIndex + 1) % config.totalPlayers;
+            loops++;
         }
+
+        config.currentPlayerIndex = nextIndex;
+
+        // Update UI for new player
+        const player = getCurrentPlayer();
+        messageArea.textContent = `Player ${player.name}'s Turn`;
+        messageArea.style.color = player.color;
+        updateTopBar();
+
+        // Reset Inputs for new player?
+        angleInput.value = 0;
+        distanceInput.value = 100;
+        angleInput.focus(); // Ensure focus returns to input
 
         draw();
+    }
+
+    function completeHole() {
+        // Add current hole to session history if not already? 
+        // Actually sessionHoles is populated where? 
+        // We probably should push to sessionHoles when we load a level.
+        // But for now, just Check if game overflow.
+
+        if (config.holesPlayedCount + 1 < config.totalHoles) {
+            messageArea.textContent = "Hole Complete! Next Hole...";
+            messageArea.style.color = '#fff';
+            nextHoleBtn.classList.remove('hidden');
+            nextHoleBtn.focus();
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const finalParDisplay = document.getElementById('final-par');
+
+        gameOverScreen.classList.remove('hidden');
+
+        // Render the full scorecard
+        renderScorecard('final-scorecard-container');
+        // Build Multi-Player Score Summary
+        let html = '<h3>Final Scores</h3><ul>';
+        config.players.sort((a, b) => a.cumulativeScore - b.cumulativeScore).forEach(p => {
+            // Recalculate cumulative just to be safe
+            const totalScore = p.holeScores.reduce((a, b) => a + (b || 0), 0);
+            html += `<li style="color:${p.color}"><b>${p.name}</b>: ${totalScore}</li>`;
+        });
+        html += '</ul>';
+
+        finalScoreDisplay.style.display = 'none';
+        finalParDisplay.parentElement.innerHTML = html;
+
+        gameOver = true;
     }
 
     // Input Input Listeners for Real-time Drawing
@@ -828,24 +986,14 @@ document.addEventListener('DOMContentLoaded', () => {
     angleInput.addEventListener('keydown', handleEnter);
     distanceInput.addEventListener('keydown', handleEnter);
 
-
-
     // Next Hole Handler
     nextHoleBtn.addEventListener('click', () => {
         config.holesPlayedCount++;
 
-        if (config.holesPlayedCount >= config.totalHoles) {
-            // End Game
-            renderScorecard('final-scorecard-container');
+        // Iterate Hole
+        config.currentHole = (config.currentHole % 9) + 1; // 1-9 loop
 
-            const gameOverScreen = document.getElementById('game-over-screen');
-            gameOverScreen.classList.remove('hidden');
-            nextHoleBtn.classList.add('hidden');
-        } else {
-            // Go to next hole (cycling through 9)
-            config.currentHole = (config.currentHole % 9) + 1;
-            loadLevel(config.currentHole);
-        }
+        loadLevel(config.currentHole);
     });
 
     // Play Again Handler

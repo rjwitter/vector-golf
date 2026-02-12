@@ -321,3 +321,28 @@ button:active {
     font-weight: 700;
     color: #e94560;
 }
+
+#final-scorecard-container {
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+}
+
+#final-scorecard-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+#final-scorecard-container th,
+#final-scorecard-container td {
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+#final-scorecard-container th {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-color);
+}
