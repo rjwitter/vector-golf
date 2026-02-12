@@ -702,7 +702,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (collision) {
             if (!startingInHazard) {
                 hitHazard = true;
-                stopBall(`HIT A ${collision.type.toUpperCase()}! Ball stopped.`, '#e74c3c');
+                if (collision.type === 'tree') {
+                    stopBall("The ball hit a tree!", '#e74c3c');
+                } else {
+                    stopBall(`HIT A ${collision.type.toUpperCase()}! Ball stopped.`, '#e74c3c');
+                }
                 return;
             }
         } else {
@@ -754,11 +758,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ball.x = lastFairwayPos.x;
                 ball.y = lastFairwayPos.y;
 
-                const oobText = "OOB! Reset to edge.";
+                const oobText = "The ball went out of bounds!";
                 if (finalMsg) {
-                    finalMsg += " " + oobText;
+                    finalMsg = oobText; // Override collision message if we also went OOB (unlikely but possible)
                 } else {
-                    finalMsg = 'Ball went out of bounds. Reset to edge.';
+                    finalMsg = "The ball went out of bounds!"; // Fixed message
                     finalColor = '#e67e22';
                 }
             }
